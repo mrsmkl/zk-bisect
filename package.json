@@ -1,0 +1,9 @@
+{
+    "name": "zk-bisect",
+    "version": "0.0.1",
+    "dependencies": {
+        "snarkjs": "0.4.14",
+        "circomlibjs": "^0.1.1",
+        "circomlib": "^2.0.3"
+    }
+}
