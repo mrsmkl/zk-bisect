@@ -64,6 +64,7 @@ template Main() {
 	signal output prev_hash_state_out;
 
 	signal input difference[64];
+	signal input difference_eq[64];
 	signal input difference_choose;
 	signal input difference_round;
 	signal input steps_equal;
@@ -103,6 +104,11 @@ template Main() {
 		difference[i] * (difference[i]-1) === 0;
 		bits.in[i] <== difference[i];
     }
+	component bits_eq = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		difference_eq[i] * (difference_eq[i]-1) === 0;
+		bits_eq.in[i] <== difference_eq[i];
+    }
 	step1_L_in === prev_step1_L_in + bits.out * difference_choose;
 	step2_L_in === step1_L_in + bits.out + difference_round;
 	prev_step2_L_in === prev_step1_L_in + 2*bits.out + difference_round;
@@ -119,7 +125,14 @@ template Main() {
 	// but if the steps are equal, hashes must be equal?
 	signal eq_hash1;
 	eq_hash1 <== steps_equal*hash1_L_in;
-	eq_hash1 + steps_equal*hash2_L_in === 0;
+	eq_hash1 === steps_equal*hash2_L_in;
+
+	signal eq_step1;
+	eq_step1 <== steps_equal*step1_L_in;
+	eq_step1 === steps_equal*step2_L_in;
+
+	// if step_equal == false, then steps must be different
+	(1-steps_equal)*(1+bits_eq.out) + step1_L_in === step2_L_in;
 
 	// use initial hash as salt
 	component hash_salt = Poseidon(1);
