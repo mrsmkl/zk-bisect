@@ -1,0 +1,7 @@
+*.ptau
+*.zkey
+*.r1cs
+*.sym
+*.wasm
+node_modules
+bisect_js
