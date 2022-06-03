@@ -38,6 +38,10 @@ template Main() {
 	signal input prev_hash2_L_in;
 	signal input prev_hash2_R_in;
 
+	// true if chose the first segment
+	signal input choose_L_in;
+	signal input choose_R_in;
+
 	signal input sender_k;
 
 	signal input other_x;
@@ -59,6 +63,9 @@ template Main() {
 	signal output cipher_hash1_R_in_out;
 	signal output cipher_hash2_L_in_out;
 	signal output cipher_hash2_R_in_out;
+
+	signal output cipher_choose_L_in_out;
+	signal output cipher_choose_R_in_out;
 
 	signal output hash_state_out;
 	signal output prev_hash_state_out;
@@ -96,6 +103,7 @@ template Main() {
 	mulFix.out[1] === sender_y;
 
 	////////////////////
+	difference_choose === choose_L_in;
 	steps_equal * (steps_equal-1) === 0;
 	difference_round * (difference_round-1) === 0;
 	difference_choose * (difference_choose-1) === 0;
@@ -110,8 +118,8 @@ template Main() {
 		bits_eq.in[i] <== difference_eq[i];
     }
 	step1_L_in === prev_step1_L_in + bits.out * difference_choose;
-	step2_L_in === step1_L_in + bits.out + difference_round;
-	prev_step2_L_in === prev_step1_L_in + 2*bits.out + difference_round;
+	step2_L_in === step1_L_in + bits.out + difference_round + 1;
+	prev_step2_L_in === prev_step1_L_in + 2*bits.out + difference_round + 1;
 
 	// Another one of the hashes changes (choose)
 	// choose == true if first step changed
@@ -134,20 +142,12 @@ template Main() {
 	// if step_equal == false, then steps must be different
 	(1-steps_equal)*(1+bits_eq.out) + step1_L_in === step2_L_in;
 
-	// use initial hash as salt
-	component hash_salt = Poseidon(1);
-	hash_salt.inputs[0] <== prev_hash1_R_in;
-
-	hash_salt.out === hash1_R_in;
-	hash_salt.out === hash2_R_in;
-	hash_salt.out === step1_R_in;
-	hash_salt.out === step2_R_in;
-
 	// encrypt and hash
 	component encrypt_step1 = MiMCFeistel(220);
 	component encrypt_step2 = MiMCFeistel(220);
 	component encrypt_hash1 = MiMCFeistel(220);
 	component encrypt_hash2 = MiMCFeistel(220);
+	component encrypt_choose = MiMCFeistel(220);
 
 	encrypt_step1.xL_in <== step1_L_in;
 	encrypt_step1.xR_in <== step1_R_in;
@@ -172,6 +172,12 @@ template Main() {
 	encrypt_hash2.k <== mulAny.out[0];
 	cipher_hash2_L_in_out <== encrypt_hash2.xL_out;
 	cipher_hash2_R_in_out <== encrypt_hash2.xR_out;
+
+	encrypt_choose.xL_in <== choose_L_in;
+	encrypt_choose.xR_in <== choose_R_in;
+	encrypt_choose.k <== mulAny.out[0];
+	cipher_choose_L_in_out <== encrypt_choose.xL_out;
+	cipher_choose_R_in_out <== encrypt_choose.xR_out;
 
 	component hash_state = Poseidon(8);
 	hash_state.inputs[0] <== step1_L_in;
