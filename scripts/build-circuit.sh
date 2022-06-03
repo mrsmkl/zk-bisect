@@ -10,12 +10,11 @@ cargo build --release
 cargo install --path circom
 cd -
 
-circom circuits/bisect.circom --r1cs --wasm --sym
+circom circuits/bisectinit.circom --r1cs --wasm --sym
 
-mv bisect.r1cs circuits
-mv bisect.sym circuits
-mv bisect_js/bisect.wasm circuits
-yarn run snarkjs plonk setup circuits/bisect.r1cs powersOfTau28_hez_final_16.ptau circuits/bisect.zkey
-# yarn run snarkjs zkey export verificationkey circuits/bisect.zkey circuits/verification_key.json
-yarn run snarkjs zkey export solidityverifier circuits/bisect.zkey contracts/verifier.sol
+mv bisectinit.r1cs circuits
+mv bisectinit.sym circuits
+mv bisectinit_js/bisectinit.wasm circuits
+yarn run snarkjs plonk setup circuits/bisectinit.r1cs powersOfTau28_hez_final_16.ptau circuits/bisectinit.zkey
+yarn run snarkjs zkey export solidityverifier circuits/bisectinit.zkey contracts/verifier.sol
 
