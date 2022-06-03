@@ -35,6 +35,8 @@ template Main() {
 	signal input sender_x;
 	signal input sender_y;
 
+	signal input difference[64];
+
 	signal output other_x_out;
 	signal output other_y_out;
 	signal output sender_x_out;
@@ -78,6 +80,16 @@ template Main() {
 
 	mulFix.out[0] === sender_x;
 	mulFix.out[1] === sender_y;
+
+	// Initial step has to be zero, final has to be larger
+	component bits = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		difference[i] * (difference[i]-1) === 0;
+		bits.in[i] <== difference[i];
+    }
+
+	step1_L_in === 0;
+	step2_L_in === step1_L_in + bits.out;
 
 	// use initial hash as salt
 	hash1_L_in === hash1_R_in;

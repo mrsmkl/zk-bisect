@@ -63,6 +63,10 @@ template Main() {
 	signal output hash_state_out;
 	signal output prev_hash_state_out;
 
+	signal input difference[64];
+	signal input difference_choose;
+	signal input difference_round;
+	signal input steps_equal;
 
 	var i;
 
@@ -90,13 +94,41 @@ template Main() {
 	mulFix.out[0] === sender_x;
 	mulFix.out[1] === sender_y;
 
-	// use initial hash as salt
-	component hash_salt = Poseidon(8);
+	////////////////////
+	steps_equal * (steps_equal-1) === 0;
+	difference_round * (difference_round-1) === 0;
+	difference_choose * (difference_choose-1) === 0;
+	component bits = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		difference[i] * (difference[i]-1) === 0;
+		bits.in[i] <== difference[i];
+    }
+	step1_L_in === prev_step1_L_in + bits.out * difference_choose;
+	step2_L_in === step1_L_in + bits.out + difference_round;
+	prev_step2_L_in === prev_step1_L_in + 2*bits.out + difference_round;
 
-	salt === hash1_R_in;
-	salt === hash2_R_in;
-	salt === step1_R_in;
-	salt === step2_R_in;
+	// Another one of the hashes changes (choose)
+	// choose == true if first step changed
+	signal selected_hash1;
+	selected_hash1 <== (1-difference_choose) * prev_hash1_L_in;
+	selected_hash1 === (1-difference_choose) * hash1_L_in;
+	signal selected_hash2;
+	selected_hash2 <== difference_choose * prev_hash2_L_in;
+	selected_hash2 === difference_choose * hash2_L_in;
+
+	// but if the steps are equal, hashes must be equal?
+	signal eq_hash1;
+	eq_hash1 <== steps_equal*hash1_L_in;
+	eq_hash1 + steps_equal*hash2_L_in === 0;
+
+	// use initial hash as salt
+	component hash_salt = Poseidon(1);
+	hash_salt.inputs[0] <== prev_hash1_R_in;
+
+	hash_salt.out === hash1_R_in;
+	hash_salt.out === hash2_R_in;
+	hash_salt.out === step1_R_in;
+	hash_salt.out === step2_R_in;
 
 	// encrypt and hash
 	component encrypt_step1 = MiMCFeistel(220);
