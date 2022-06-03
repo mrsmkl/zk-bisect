@@ -67,6 +67,9 @@ template Main() {
 	signal output cipher_hash3_L_in_out;
 	signal output cipher_hash3_R_in_out;
 
+	signal output cipher_choose_L_in_out;
+	signal output cipher_choose_R_in_out;
+
 	// true if chose the first segment
 	signal input choose_L_in;
 	signal input choose_R_in;
@@ -78,12 +81,14 @@ template Main() {
 	signal input difference_eq[64];
 	signal input difference_choose;
 	signal input difference_round;
+	signal input steps_equal;
 
 	var i;
 
 	////////////////////
 	difference_choose === choose_L_in;
 	difference_round * (difference_round-1) === 0;
+	steps_equal * (steps_equal-1) === 0;
 	difference_choose * (difference_choose-1) === 0;
 	component bits = Bits2Num(64);
     for (i=0; i<64; i++) {
@@ -95,9 +100,16 @@ template Main() {
 		difference_eq[i] * (difference_eq[i]-1) === 0;
 		bits_eq.in[i] <== difference_eq[i];
     }
-	step1_L_in === prev_step1_L_in + bits.out * difference_choose;
-	step2_L_in === step1_L_in + bits.out + difference_round + 1;
-	prev_step2_L_in === prev_step1_L_in + 2*bits.out + difference_round + 1;
+
+	// step1 < step2 <= step3
+	signal step1_choose;
+	signal step2_choose;
+	step1_choose <== (1-difference_choose) * prev_step1_L_in;
+	step1_L_in === step1_choose + difference_choose * prev_step2_L_in;
+	step2_L_in === step1_L_in + bits.out + 1;
+	step3_L_in === step2_L_in + bits.out - difference_round;
+	step2_choose <== (1-difference_choose) * prev_step2_L_in;
+	step3_L_in === step2_choose + difference_choose * prev_step3_L_in;
 
 	// Another one of the hashes changes (choose)
 	// choose == true if first step changed
@@ -105,11 +117,25 @@ template Main() {
 	selected_hash1 <== (1-difference_choose) * prev_hash1_L_in;
 	selected_hash1 === (1-difference_choose) * hash1_L_in;
 	signal selected_hash2;
-	selected_hash2 <== difference_choose * prev_hash2_L_in;
-	selected_hash2 === difference_choose * hash2_L_in;
+	selected_hash2 <== (1-difference_choose) * prev_hash2_L_in;
+	selected_hash2 === (1-difference_choose) * hash3_L_in;
+	signal selected_hash3;
+	selected_hash3 <== difference_choose * prev_hash2_L_in;
+	selected_hash3 === difference_choose * hash1_L_in;
+	signal selected_hash4;
+	selected_hash4 <== difference_choose * prev_hash3_L_in;
+	selected_hash4 === difference_choose * hash3_L_in;
 
+	signal eq_step2;
+	eq_step2 <== steps_equal*step2_L_in;
+	eq_step2 === steps_equal*step3_L_in;
+	signal eq_hash2;
+	eq_hash2 <== steps_equal*hash2_L_in;
+	eq_hash2 === steps_equal*hash3_L_in;
+	// if step_equal == false, then steps must be different
+	(1-steps_equal)*(1+bits_eq.out) + step2_L_in === step3_L_in;
 
-	/////////// 
+	///////////
 	component snum2bits = Num2Bits(253);
     snum2bits.in <== sender_k;
 
@@ -176,6 +202,13 @@ template Main() {
 	encrypt_hash3.k <== mulAny.out[0];
 	cipher_hash3_L_in_out <== encrypt_hash3.xL_out;
 	cipher_hash3_R_in_out <== encrypt_hash3.xR_out;
+
+	component encrypt_choose = MiMCFeistel(220);
+	encrypt_choose.xL_in <== choose_L_in;
+	encrypt_choose.xR_in <== choose_R_in;
+	encrypt_choose.k <== mulAny.out[0];
+	cipher_choose_L_in_out <== encrypt_choose.xL_out;
+	cipher_choose_R_in_out <== encrypt_choose.xR_out;
 
 	component hash_state = Poseidon(7);
 	hash_state.inputs[0] <== step1_L_in;

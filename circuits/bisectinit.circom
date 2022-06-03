@@ -110,9 +110,8 @@ template Main() {
 	difference_round * (difference_round-1) === 0;
 
 	step1_L_in === 0;
-	step2_L_in === step1_L_in + bits.out;
-	step3_L_in === step1_L_in + 2*bits.out + 1 + difference_round;
-
+	step2_L_in === step1_L_in + bits.out + 1;
+	step3_L_in === step2_L_in + bits.out + difference_round;
 
 	component snum2bits = Num2Bits(253);
     snum2bits.in <== sender_k;
