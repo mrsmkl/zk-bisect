@@ -5,3 +5,4 @@
 *.wasm
 node_modules
 bisect_js
+bisectinit_js
