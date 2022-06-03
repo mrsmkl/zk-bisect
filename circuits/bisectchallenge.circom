@@ -28,6 +28,16 @@ template Main() {
 	signal input hash2_L_in;
 	signal input hash2_R_in;
 
+	signal input prev_step1_L_in;
+	signal input prev_step1_R_in;
+	signal input prev_step2_L_in;
+	signal input prev_step2_R_in;
+
+	signal input prev_hash1_L_in;
+	signal input prev_hash1_R_in;
+	signal input prev_hash2_L_in;
+	signal input prev_hash2_R_in;
+
 	signal input sender_k;
 
 	signal input other_x;
@@ -51,6 +61,7 @@ template Main() {
 	signal output cipher_hash2_R_in_out;
 
 	signal output hash_state_out;
+	signal output prev_hash_state_out;
 
 
 	var i;
@@ -80,10 +91,12 @@ template Main() {
 	mulFix.out[1] === sender_y;
 
 	// use initial hash as salt
-	hash1_L_in === hash1_R_in;
-	hash1_L_in === hash2_R_in;
-	hash1_L_in === step1_R_in;
-	hash1_L_in === step2_R_in;
+	component hash_salt = Poseidon(8);
+
+	salt === hash1_R_in;
+	salt === hash2_R_in;
+	salt === step1_R_in;
+	salt === step2_R_in;
 
 	// encrypt and hash
 	component encrypt_step1 = MiMCFeistel(220);
@@ -125,11 +138,22 @@ template Main() {
 	hash_state.inputs[6] <== hash2_L_in;
 	hash_state.inputs[7] <== hash2_R_in;
 
+	component prev_hash_state = Poseidon(8);
+	prev_hash_state.inputs[0] <== prev_step1_L_in;
+	prev_hash_state.inputs[1] <== prev_step1_R_in;
+	prev_hash_state.inputs[2] <== prev_step2_L_in;
+	prev_hash_state.inputs[3] <== prev_step2_R_in;
+	prev_hash_state.inputs[4] <== prev_hash1_L_in;
+	prev_hash_state.inputs[5] <== prev_hash1_R_in;
+	prev_hash_state.inputs[6] <== prev_hash2_L_in;
+	prev_hash_state.inputs[7] <== prev_hash2_R_in;
+
 	other_x_out <== other_x;
 	other_y_out <== other_y;
 	sender_x_out <== sender_x;
 	sender_y_out <== sender_y;
 	hash_state_out <== hash_state.out;
+	prev_hash_state_out <== prev_hash_state.out;
 }
 
 component main = Main();
