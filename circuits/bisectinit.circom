@@ -9,6 +9,8 @@ include "../node_modules/circomlib/circuits/poseidon.circom";
 include "../node_modules/circomlib/circuits/gates.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
 
+include "bisect.circom";
+
 // what is the state?
 // * first step
 // * last step
@@ -39,9 +41,6 @@ template Main() {
 	signal input sender_x;
 	signal input sender_y;
 
-	signal input difference[64];
-	signal input difference_round;
-
 	signal output other_x_out;
 	signal output other_y_out;
 	signal output sender_x_out;
@@ -63,8 +62,57 @@ template Main() {
 
 	signal output hash_state_out;
 
+	signal input difference[64];
+	signal input difference_round;
+
+
+/*
+	component common = Util();
+
+	common.step1_L_in <== step1_L_in;
+	common.step2_L_in <== step2_L_in;
+	common.step3_L_in <== step3_L_in;
+	common.hash1_L_in <== step1_L_in;
+	common.hash2_L_in <== step2_L_in;
+	common.hash3_L_in <== step3_L_in;
+
+	common.step1_R_in <== step1_R_in;
+	common.step2_R_in <== step2_R_in;
+	common.step3_R_in <== step3_R_in;
+	common.hash1_R_in <== step1_R_in;
+	common.hash2_R_in <== step2_R_in;
+	common.hash3_R_in <== step3_R_in;
+
+	common.cipher_step1_L_in_out ==> cipher_step1_L_in_out;
+	common.cipher_step1_R_in_out ==> cipher_step1_R_in_out;
+	common.cipher_step2_L_in_out ==> cipher_step2_L_in_out;
+	common.cipher_step2_R_in_out ==> cipher_step2_R_in_out;
+	common.cipher_step3_L_in_out ==> cipher_step3_L_in_out;
+	common.cipher_step3_R_in_out ==> cipher_step3_R_in_out;
+
+	common.cipher_hash1_L_in_out ==> cipher_hash1_L_in_out;
+	common.cipher_hash1_R_in_out ==> cipher_hash1_R_in_out;
+	common.cipher_hash2_L_in_out ==> cipher_hash2_L_in_out;
+	common.cipher_hash2_R_in_out ==> cipher_hash2_R_in_out;
+	common.cipher_hash3_L_in_out ==> cipher_hash3_L_in_out;
+	common.cipher_hash3_R_in_out ==> cipher_hash3_R_in_out;
+*/
 
 	var i;
+
+	// Initial step has to be zero, final has to be larger
+	component bits = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		difference[i] * (difference[i]-1) === 0;
+		bits.in[i] <== difference[i];
+    }
+
+	difference_round * (difference_round-1) === 0;
+
+	step1_L_in === 0;
+	step2_L_in === step1_L_in + bits.out;
+	step3_L_in === step1_L_in + 2*bits.out + 1 + difference_round;
+
 
 	component snum2bits = Num2Bits(253);
     snum2bits.in <== sender_k;
@@ -89,19 +137,6 @@ template Main() {
 
 	mulFix.out[0] === sender_x;
 	mulFix.out[1] === sender_y;
-
-	// Initial step has to be zero, final has to be larger
-	component bits = Bits2Num(64);
-    for (i=0; i<64; i++) {
-		difference[i] * (difference[i]-1) === 0;
-		bits.in[i] <== difference[i];
-    }
-
-	difference_round * (difference_round-1) === 0;
-
-	step1_L_in === 0;
-	step2_L_in === step1_L_in + bits.out;
-	step3_L_in === step1_L_in + 2*bits.out + 1 + difference_round;
 
 	// encrypt and hash
 	component encrypt_step1 = MiMCFeistel(220);
