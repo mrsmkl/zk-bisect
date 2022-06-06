@@ -172,7 +172,7 @@ describe('testing challenge', function () {
             'circuits/bisectchallenge.zkey'
         )
 
-        console.log(proof)
+        // console.log(proof)
 
     })
 })

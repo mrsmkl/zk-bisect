@@ -117,7 +117,7 @@ describe('testing init', function () {
             'circuits/bisectinit.zkey'
         )
 
-        console.log(proof)
+        // console.log(proof)
 
     })
 })
