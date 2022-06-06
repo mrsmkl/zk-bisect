@@ -20,5 +20,5 @@ process() {
     yarn run snarkjs zkey export solidityverifier circuits/$1.zkey contracts/$1.sol
 }
 
-process bisectinit
+# process bisectinit
 process bisectchallenge

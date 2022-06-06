@@ -12,21 +12,21 @@ describe('testing challenge', function () {
         const mimcjs = await circomlib.buildMimcSponge()
         const F = poseidon.F
 
-        let step1 = F.e(0)
-        let step2 = F.e(12)
-        let step3 = F.e(24)
-
-        let hash1 = F.e(333)
-        let hash2 = F.e(444)
-        let hash3 = F.e(555)
-
         let prev_step1 = F.e(0)
-        let prev_step2 = F.e(6)
-        let prev_step3 = F.e(12)
+        let prev_step2 = F.e(12)
+        let prev_step3 = F.e(24)
 
         let prev_hash1 = F.e(333)
-        let prev_hash2 = F.e(999)
-        let prev_hash3 = F.e(444)
+        let prev_hash2 = F.e(444)
+        let prev_hash3 = F.e(555)
+
+        let step1 = F.e(0)
+        let step2 = F.e(7)
+        let step3 = F.e(12)
+
+        let hash1 = F.e(333)
+        let hash2 = F.e(999)
+        let hash3 = F.e(444)
 
         let step1_salt = F.e(220)
         let step2_salt = F.e(2212)
@@ -93,11 +93,16 @@ describe('testing challenge', function () {
         }
 
         let difference_round = 1
-        let steps_equal = 1
-        difference[0] = 1
+        let steps_equal = 0
+        difference[0] = 0
         difference[1] = 1
-        difference[2] = 0
-        difference[3] = 1
+        difference[2] = 1
+        difference[3] = 0
+
+        difference_eq[0] = 0
+        difference_eq[1] = 0
+        difference_eq[2] = 1
+        difference_eq[3] = 0
 
         const snarkParams = {
             // private
