@@ -2,6 +2,7 @@ const circomlib = require('circomlibjs')
 
 const snarkjs = require('snarkjs')
 // const { unstringifyBigInts } = require('ffjavascript').utils
+const { num2bits } = require('./util')
 
 describe('testing init', function () {
     this.timeout(100000)
@@ -58,16 +59,8 @@ describe('testing init', function () {
         const cipher_hash2 = mimcjs.hash(hash2, hash2_salt, k[0])
         const cipher_hash3 = mimcjs.hash(hash3, hash3_salt, k[0])
 
-        let difference = []
-        for (let i = 0; i < 64; i++) {
-            difference[i] = 0
-        }
-
         let difference_round = 1
-        difference[0] = 1
-        difference[1] = 1
-        difference[2] = 0
-        difference[3] = 1
+        let difference = num2bits(11)
 
         const snarkParams = {
             // private

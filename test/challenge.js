@@ -2,6 +2,36 @@ const circomlib = require('circomlibjs')
 
 const snarkjs = require('snarkjs')
 // const { unstringifyBigInts } = require('ffjavascript').utils
+const { num2bits } = require('./util')
+
+function bisect(F, start, end) {
+    let mid = start + Math.floor((end-start) / 2) + 1
+    let difference = mid - start - 1
+    let difference_eq = end - mid - 1
+    let steps_equal = 0
+    let difference_round = (start + 1 + 2*difference) - end
+    if (difference_eq < 0) {
+        difference_eq = 0
+        steps_equal = 1
+        mid = start+1
+        end = mid
+        difference = 0
+        difference_round = 0
+    }
+    console.log("steps", start, mid, end, "diff", difference, difference_eq, difference_round)
+    return {
+        prev_step1: F.e(start),
+        prev_step2: F.e(end),
+        prev_step3: F.e(start+10),
+        step1: F.e(start),
+        step2: F.e(mid),
+        step3: F.e(end),
+        difference_eq: num2bits(difference_eq),
+        difference: num2bits(difference),
+        difference_round,
+        steps_equal,
+    }
+}
 
 describe('testing challenge', function () {
     this.timeout(100000)
@@ -12,21 +42,30 @@ describe('testing challenge', function () {
         const mimcjs = await circomlib.buildMimcSponge()
         const F = poseidon.F
 
-        let prev_step1 = F.e(0)
-        let prev_step2 = F.e(12)
-        let prev_step3 = F.e(24)
+        let {
+            difference,
+            difference_eq,
+            difference_round,
+            step1,
+            step2,
+            step3,
+            prev_step1,
+            prev_step2,
+            prev_step3,
+            steps_equal,
+        } = bisect(F, 1, 3)
 
         let prev_hash1 = F.e(333)
         let prev_hash2 = F.e(444)
         let prev_hash3 = F.e(555)
 
-        let step1 = F.e(0)
-        let step2 = F.e(7)
-        let step3 = F.e(12)
-
         let hash1 = F.e(333)
         let hash2 = F.e(999)
         let hash3 = F.e(444)
+
+        if (steps_equal === 1) {
+            hash2 = hash3
+        }
 
         let step1_salt = F.e(220)
         let step2_salt = F.e(2212)
@@ -81,28 +120,6 @@ describe('testing challenge', function () {
         const cipher_hash3 = mimcjs.hash(hash3, hash3_salt, k[0])
 
         const cipher_choose = mimcjs.hash(choose, choose_salt, k[0])
-
-        let difference = []
-        for (let i = 0; i < 64; i++) {
-            difference[i] = 0
-        }
-
-        let difference_eq = []
-        for (let i = 0; i < 64; i++) {
-            difference_eq[i] = 0
-        }
-
-        let difference_round = 1
-        let steps_equal = 0
-        difference[0] = 0
-        difference[1] = 1
-        difference[2] = 1
-        difference[3] = 0
-
-        difference_eq[0] = 0
-        difference_eq[1] = 0
-        difference_eq[2] = 1
-        difference_eq[3] = 0
 
         const snarkParams = {
             // private
