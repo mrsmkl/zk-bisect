@@ -3,36 +3,47 @@ const circomlib = require('circomlibjs')
 const snarkjs = require('snarkjs')
 // const { unstringifyBigInts } = require('ffjavascript').utils
 
-describe('testing init', () => {
+describe('testing init', function () {
+    this.timeout(100000)
     it('proving init', async () => {
-        let step1 = 0
-        let step2 = 12
-        let step3 = 24
-
-        let hash1 = 333
-        let hash2 = 444
-        let hash3 = 555
-
-        let step1_salt = 220
-        let step2_salt = 2212
-        let step3_salt = 2224
-
-        let hash1_salt = 22333
-        let hash2_salt = 22444
-        let hash3_salt = 22555
-
-        let senderK = 123 
-        let otherK = 234
 
         const poseidon = await circomlib.buildPoseidonReference()
         const babyJub = await circomlib.buildBabyjub()
         const mimcjs = await circomlib.buildMimcSponge()
         const F = poseidon.F
+
+        let step1 = F.e(0)
+        let step2 = F.e(12)
+        let step3 = F.e(24)
+
+        let hash1 = F.e(333)
+        let hash2 = F.e(444)
+        let hash3 = F.e(555)
+
+        let step1_salt = F.e(220)
+        let step2_salt = F.e(2212)
+        let step3_salt = F.e(2224)
+
+        let hash1_salt = F.e(22333)
+        let hash2_salt = F.e(22444)
+        let hash3_salt = F.e(22555)
+
+        let senderK = 123
+        let otherK = 234
+
         function conv(x) {
             const res = F.toObject(x)
             return res
         }
-        const origHash = poseidon([F.e(orig1), F.e(orig2)])
+        const hash_state = poseidon([
+            step1,
+            step2,
+            step3,
+            hash1,
+            hash2,
+            hash3,
+            step1_salt,
+        ])
 
         const senderPub = babyJub.mulPointEscalar(babyJub.Base8, senderK)
         const otherPub = babyJub.mulPointEscalar(babyJub.Base8, otherK)
@@ -47,19 +58,57 @@ describe('testing init', () => {
         const cipher_hash2 = mimcjs.hash(hash2, hash2_salt, k[0])
         const cipher_hash3 = mimcjs.hash(hash3, hash3_salt, k[0])
 
+        let difference = []
+        for (let i = 0; i < 64; i++) {
+            difference[i] = 0
+        }
+
+        let difference_round = 1
+        difference[0] = 1
+        difference[1] = 1
+        difference[2] = 0
+        difference[3] = 1
+
         const snarkParams = {
             // private
-            xL_in: orig1,
-            xR_in: orig2,
-            provider_k: providerK,
+            step1_L_in: conv(step1),
+            step1_R_in: conv(step1_salt),
+            step2_L_in: conv(step2),
+            step2_R_in: conv(step2_salt),
+            step3_L_in: conv(step3),
+            step3_R_in: conv(step3_salt),
+
+            hash1_L_in: conv(hash1),
+            hash1_R_in: conv(hash1_salt),
+            hash2_L_in: conv(hash2),
+            hash2_R_in: conv(hash2_salt),
+            hash3_L_in: conv(hash3),
+            hash3_R_in: conv(hash3_salt),
+
+            sender_k: senderK,
+            difference: difference,
+            difference_round: difference_round,
+
             // public
-            buyer_x: conv(buyerPub[0]),
-            buyer_y: conv(buyerPub[1]),
-            provider_x: conv(providerPub[0]),
-            provider_y: conv(providerPub[1]),
-            cipher_xL_in: conv(cipher.xL),
-            cipher_xR_in: conv(cipher.xR),
-            hash_plain: conv(origHash)
+            sender_x: conv(senderPub[0]),
+            sender_y: conv(senderPub[1]),
+            other_x: conv(otherPub[0]),
+            other_y: conv(otherPub[1]),
+
+            cipher_step1_L_in: conv(cipher_step1.xL),
+            cipher_step1_R_in: conv(cipher_step1.xR),
+            cipher_step2_L_in: conv(cipher_step2.xL),
+            cipher_step2_R_in: conv(cipher_step2.xR),
+            cipher_step3_L_in: conv(cipher_step3.xL),
+            cipher_step3_R_in: conv(cipher_step3.xR),
+
+            cipher_hash1_L_in: conv(cipher_hash1.xL),
+            cipher_hash1_R_in: conv(cipher_hash1.xR),
+            cipher_hash2_L_in: conv(cipher_hash2.xL),
+            cipher_hash2_R_in: conv(cipher_hash2.xR),
+            cipher_hash3_L_in: conv(cipher_hash3.xL),
+            cipher_hash3_R_in: conv(cipher_hash3.xR),
+            hash_state_in: conv(hash_state),
         }
 
         const { proof } = await snarkjs.plonk.fullProve(
@@ -67,5 +116,8 @@ describe('testing init', () => {
             'circuits/bisectinit.wasm',
             'circuits/bisectinit.zkey'
         )
+
+        console.log(proof)
+
     })
 })
