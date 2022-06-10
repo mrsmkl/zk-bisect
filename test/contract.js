@@ -186,9 +186,11 @@ describe('Bisect', function () {
             step3,
             prev_step1,
             prev_step2,
-            prev_step3,
+            // prev_step3,
             steps_equal,
-        } = bisectRange(F, 1, 3)
+        } = bisectRange(F, 0, 12)
+
+        let prev_step3 = F.e(24)
 
         let prev_hash1 = F.e(333)
         let prev_hash2 = F.e(444)
@@ -330,6 +332,48 @@ describe('Bisect', function () {
             'circuits/bisectchallenge.wasm',
             'circuits/bisectchallenge.zkey'
         )
+
+        const signals = [
+            senderPub[0],
+            senderPub[1],
+            otherPub[0],
+            otherPub[1],
+
+            (cipher_step1.xL),
+            (cipher_step1.xR),
+            (cipher_step2.xL),
+            (cipher_step2.xR),
+            (cipher_step3.xL),
+            (cipher_step3.xR),
+
+            (cipher_hash1.xL),
+            (cipher_hash1.xR),
+            (cipher_hash2.xL),
+            (cipher_hash2.xR),
+            (cipher_hash3.xL),
+            (cipher_hash3.xR),
+            (cipher_choose.xL),
+            (cipher_choose.xR),
+            (hash_state),
+            (prev_hash_state),
+        ]
+
+        const proofSolidity = (await snarkjs.plonk.exportSolidityCallData(unstringifyBigInts(proof), signals))
+        const proofData = proofSolidity.split(',')[0]
+
+        console.log(proofData)
+        await bisect.connect(owner).replyChallenge(
+            "0x1232",
+            [conv(cipher_step1.xL), conv(cipher_step1.xR)],
+            [conv(cipher_hash1.xL), conv(cipher_hash1.xR)],
+            [conv(cipher_step2.xL), conv(cipher_step2.xR)],
+            [conv(cipher_hash2.xL), conv(cipher_hash2.xR)],
+            [conv(cipher_step3.xL), conv(cipher_step3.xR)],
+            [conv(cipher_hash3.xL), conv(cipher_hash3.xR)],
+            conv(hash_state),
+            proofData
+        )
+
 
     })
 })

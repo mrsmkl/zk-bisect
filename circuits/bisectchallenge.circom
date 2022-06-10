@@ -192,50 +192,36 @@ template Main() {
 	encrypt_step1.xL_in <== step1_L_in;
 	encrypt_step1.xR_in <== step1_R_in;
 	encrypt_step1.k <== mulAny.out[0];
-	cipher_step1_L_in_out <== encrypt_step1.xL_out;
-	cipher_step1_R_in_out <== encrypt_step1.xR_out;
 
 	component encrypt_step2 = MiMCFeistel(220);
 	encrypt_step2.xL_in <== step2_L_in;
 	encrypt_step2.xR_in <== step2_R_in;
 	encrypt_step2.k <== mulAny.out[0];
-	cipher_step2_L_in_out <== encrypt_step2.xL_out;
-	cipher_step2_R_in_out <== encrypt_step2.xR_out;
 
 	component encrypt_step3 = MiMCFeistel(220);
 	encrypt_step3.xL_in <== step3_L_in;
 	encrypt_step3.xR_in <== step3_R_in;
 	encrypt_step3.k <== mulAny.out[0];
-	cipher_step3_L_in_out <== encrypt_step3.xL_out;
-	cipher_step3_R_in_out <== encrypt_step3.xR_out;
 
 	component encrypt_hash1 = MiMCFeistel(220);
 	encrypt_hash1.xL_in <== hash1_L_in;
 	encrypt_hash1.xR_in <== hash1_R_in;
 	encrypt_hash1.k <== mulAny.out[0];
-	cipher_hash1_L_in_out <== encrypt_hash1.xL_out;
-	cipher_hash1_R_in_out <== encrypt_hash1.xR_out;
 
 	component encrypt_hash2 = MiMCFeistel(220);
 	encrypt_hash2.xL_in <== hash2_L_in;
 	encrypt_hash2.xR_in <== hash2_R_in;
 	encrypt_hash2.k <== mulAny.out[0];
-	cipher_hash2_L_in_out <== encrypt_hash2.xL_out;
-	cipher_hash2_R_in_out <== encrypt_hash2.xR_out;
 
 	component encrypt_hash3 = MiMCFeistel(220);
 	encrypt_hash3.xL_in <== hash3_L_in;
 	encrypt_hash3.xR_in <== hash3_R_in;
 	encrypt_hash3.k <== mulAny.out[0];
-	cipher_hash3_L_in_out <== encrypt_hash3.xL_out;
-	cipher_hash3_R_in_out <== encrypt_hash3.xR_out;
 
 	component encrypt_choose = MiMCFeistel(220);
 	encrypt_choose.xL_in <== choose_L_in;
 	encrypt_choose.xR_in <== choose_R_in;
 	encrypt_choose.k <== mulAny.out[0];
-	cipher_choose_L_in_out <== encrypt_choose.xL_out;
-	cipher_choose_R_in_out <== encrypt_choose.xR_out;
 
 	component hash_state = Poseidon(7);
 	hash_state.inputs[0] <== step1_L_in;
@@ -254,6 +240,23 @@ template Main() {
 	prev_hash_state.inputs[4] <== prev_hash2_L_in;
 	prev_hash_state.inputs[5] <== prev_hash3_L_in;
 	prev_hash_state.inputs[6] <== prev_step1_R_in;
+
+	cipher_step1_L_in_out <== encrypt_step1.xL_out;
+	cipher_step1_R_in_out <== encrypt_step1.xR_out;
+	cipher_step2_L_in_out <== encrypt_step2.xL_out;
+	cipher_step2_R_in_out <== encrypt_step2.xR_out;
+	cipher_step3_L_in_out <== encrypt_step3.xL_out;
+	cipher_step3_R_in_out <== encrypt_step3.xR_out;
+
+	cipher_hash1_L_in_out <== encrypt_hash1.xL_out;
+	cipher_hash1_R_in_out <== encrypt_hash1.xR_out;
+	cipher_hash2_L_in_out <== encrypt_hash2.xL_out;
+	cipher_hash2_R_in_out <== encrypt_hash2.xR_out;
+	cipher_hash3_L_in_out <== encrypt_hash3.xL_out;
+	cipher_hash3_R_in_out <== encrypt_hash3.xR_out;
+
+	cipher_choose_L_in_out <== encrypt_choose.xL_out;
+	cipher_choose_R_in_out <== encrypt_choose.xR_out;
 
 	other_x_out <== other_x;
 	other_y_out <== other_y;

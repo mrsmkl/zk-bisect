@@ -19,5 +19,5 @@ process() {
     sed -i "s/PlonkVerifier/Verifier${1}/g" contracts/$1.sol
 }
 
-process bisectinit
-# process bisectchallenge
+# process bisectinit
+process bisectchallenge
