@@ -135,7 +135,6 @@ contract Verifierbisectinit {
     
     uint16 constant lastMem = 1216;
 
-
     function verifyProof(bytes memory proof, uint[] memory pubSignals) public view returns (bool) {
         assembly {
             /////////
@@ -231,12 +230,54 @@ contract Verifierbisectinit {
                 // Points are checked in the point operations precompiled smart contracts
             }
             
-            function calculateChallanges(pProof, pMem) {
+            function calculateChallanges(pProof, pMem, pPublic) {
             
                 let a
                 let b
+
                 
-                b := mod(keccak256(add(pProof, pA), 192), q) 
+                mstore( add(pMem, 1216 ), mload( add( pPublic, 32)))
+                
+                mstore( add(pMem, 1248 ), mload( add( pPublic, 64)))
+                
+                mstore( add(pMem, 1280 ), mload( add( pPublic, 96)))
+                
+                mstore( add(pMem, 1312 ), mload( add( pPublic, 128)))
+                
+                mstore( add(pMem, 1344 ), mload( add( pPublic, 160)))
+                
+                mstore( add(pMem, 1376 ), mload( add( pPublic, 192)))
+                
+                mstore( add(pMem, 1408 ), mload( add( pPublic, 224)))
+                
+                mstore( add(pMem, 1440 ), mload( add( pPublic, 256)))
+                
+                mstore( add(pMem, 1472 ), mload( add( pPublic, 288)))
+                
+                mstore( add(pMem, 1504 ), mload( add( pPublic, 320)))
+                
+                mstore( add(pMem, 1536 ), mload( add( pPublic, 352)))
+                
+                mstore( add(pMem, 1568 ), mload( add( pPublic, 384)))
+                
+                mstore( add(pMem, 1600 ), mload( add( pPublic, 416)))
+                
+                mstore( add(pMem, 1632 ), mload( add( pPublic, 448)))
+                
+                mstore( add(pMem, 1664 ), mload( add( pPublic, 480)))
+                
+                mstore( add(pMem, 1696 ), mload( add( pPublic, 512)))
+                
+                mstore( add(pMem, 1728 ), mload( add( pPublic, 544)))
+                
+                mstore( add(pMem, 1760 ), mload( add( pProof, pA)))
+                mstore( add(pMem, 1792 ), mload( add( pProof, add(pA,32))))
+                mstore( add(pMem, 1824 ), mload( add( pProof, add(pA,64))))
+                mstore( add(pMem, 1856 ), mload( add( pProof, add(pA,96))))
+                mstore( add(pMem, 1888 ), mload( add( pProof, add(pA,128))))
+                mstore( add(pMem, 1920 ), mload( add( pProof, add(pA,160))))
+                
+                b := mod(keccak256(add(pMem, lastMem), 736), q) 
                 mstore( add(pMem, pBeta), b)
                 mstore( add(pMem, pGamma), mod(keccak256(add(pMem, pBeta), 32), q))
                 mstore( add(pMem, pAlpha), mod(keccak256(add(pProof, pZ), 64), q))
@@ -1522,7 +1563,7 @@ contract Verifierbisectinit {
             mstore(0x40, add(pMem, lastMem))
             
             checkInput(proof)
-            calculateChallanges(proof, pMem)
+            calculateChallanges(proof, pMem, pubSignals)
             calculateLagrange(pMem)
             calculatePl(pMem, pubSignals)
             calculateT(proof, pMem)

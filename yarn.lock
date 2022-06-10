@@ -1274,7 +1274,7 @@ ffjavascript@0.2.48:
     wasmcurves "0.1.0"
     web-worker "^1.2.0"
 
-ffjavascript@^0.2.45, ffjavascript@^0.2.48:
+ffjavascript@0.2.54, ffjavascript@^0.2.45, ffjavascript@^0.2.48:
   version "0.2.54"
   resolved "https://registry.yarnpkg.com/ffjavascript/-/ffjavascript-0.2.54.tgz#b81a3a84dc140566dd2bca832a78d8be29e9e4ce"
   integrity sha512-VeQmR805zaDxLALu/0FlO0OfmE3MOHvPEmEPUdlinRk7kBydgdthSQSSaHZ/OlZ1DwiiGvfiKmNgNpUq4zr+XQ==
@@ -2307,17 +2307,17 @@ slash@^3.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-snarkjs@0.4.14:
-  version "0.4.14"
-  resolved "https://registry.yarnpkg.com/snarkjs/-/snarkjs-0.4.14.tgz#b3fceb23c1674fc8c9d0cd6aff056c5100602937"
-  integrity sha512-DkYYlSG98ZOcXADDOMegxYC/Lp1GcUpllq2ASH25MpyW3CWx43Lvo8eCALuK10agEzSfDFYsKnXTr89emIPA8A==
+snarkjs@^0.4.14:
+  version "0.4.19"
+  resolved "https://registry.yarnpkg.com/snarkjs/-/snarkjs-0.4.19.tgz#536a969e9ed606c66a4706bec49db1c53326e206"
+  integrity sha512-QNEcPevBG5zB8U+PtmZ7EmH7Dr0b9kuuy8NjraT/o9ute15k34VAh/aCRAbRMtUSIoqwxS5WYKjk8vEbHzqFJw==
   dependencies:
     "@iden3/binfileutils" "0.0.10"
     blake2b-wasm "^2.4.0"
     circom_runtime "0.1.17"
     ejs "^3.1.6"
     fastfile "0.0.19"
-    ffjavascript "0.2.48"
+    ffjavascript "0.2.54"
     js-sha3 "^0.8.0"
     logplease "^1.2.15"
     r1csfile "0.0.35"
