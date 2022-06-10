@@ -4,6 +4,7 @@
     "dependencies": {
         "circomlib": "^2.0.3",
         "circomlibjs": "^0.1.1",
+        "hardhat": "^2.9.9",
         "mocha": "^10.0.0",
         "snarkjs": "^0.4.14"
     }
