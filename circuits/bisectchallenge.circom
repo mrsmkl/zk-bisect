@@ -43,10 +43,41 @@ template Main() {
 
 	signal input sender_k;
 
+	// true if chose the first segment
+	signal input choose_L_in;
+	signal input choose_R_in;
+
+	signal input difference[64];
+	signal input difference_eq[64];
+	signal input difference_choose;
+	signal input difference_round;
+	signal input steps_equal;
+	signal input choose_bits[254];
+
 	signal input other_x;
 	signal input other_y;
 	signal input sender_x;
 	signal input sender_y;
+
+	signal input cipher_step1_L_in;
+	signal input cipher_step1_R_in;
+	signal input cipher_step2_L_in;
+	signal input cipher_step2_R_in;
+	signal input cipher_step3_L_in;
+	signal input cipher_step3_R_in;
+
+	signal input cipher_hash1_L_in;
+	signal input cipher_hash1_R_in;
+	signal input cipher_hash2_L_in;
+	signal input cipher_hash2_R_in;
+	signal input cipher_hash3_L_in;
+	signal input cipher_hash3_R_in;
+
+	signal input cipher_choose_L_in;
+	signal input cipher_choose_R_in;
+
+	signal input hash_state_in;
+	signal input prev_hash_state_in;
 
 	signal output other_x_out;
 	signal output other_y_out;
@@ -70,19 +101,8 @@ template Main() {
 	signal output cipher_choose_L_in_out;
 	signal output cipher_choose_R_in_out;
 
-	// true if chose the first segment
-	signal input choose_L_in;
-	signal input choose_R_in;
-
 	signal output hash_state_out;
 	signal output prev_hash_state_out;
-
-	signal input difference[64];
-	signal input difference_eq[64];
-	signal input difference_choose;
-	signal input difference_round;
-	signal input steps_equal;
-	signal input choose_bits[254];
 
 	var i;
 
@@ -241,6 +261,29 @@ template Main() {
 	sender_y_out <== sender_y;
 	hash_state_out <== hash_state.out;
 	prev_hash_state_out <== prev_hash_state.out;
+
+	cipher_step1_L_in_out === cipher_step1_L_in;
+	cipher_step2_L_in_out === cipher_step2_L_in;
+	cipher_step3_L_in_out === cipher_step3_L_in;
+
+	cipher_hash1_L_in_out === cipher_hash1_L_in;
+	cipher_hash2_L_in_out === cipher_hash2_L_in;
+	cipher_hash3_L_in_out === cipher_hash3_L_in;
+
+	cipher_step1_R_in_out === cipher_step1_R_in;
+	cipher_step2_R_in_out === cipher_step2_R_in;
+	cipher_step3_R_in_out === cipher_step3_R_in;
+
+	cipher_hash1_R_in_out === cipher_hash1_R_in;
+	cipher_hash2_R_in_out === cipher_hash2_R_in;
+	cipher_hash3_R_in_out === cipher_hash3_R_in;
+
+	cipher_choose_L_in_out === cipher_choose_L_in;
+	cipher_choose_R_in_out === cipher_choose_R_in;
+
+	hash_state_in === hash_state_out;
+	prev_hash_state_in === prev_hash_state_out;
+
 }
 
 component main = Main();

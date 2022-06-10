@@ -9,8 +9,6 @@ include "../node_modules/circomlib/circuits/poseidon.circom";
 include "../node_modules/circomlib/circuits/gates.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
 
-include "bisect.circom";
-
 // what is the state?
 // * first step
 // * last step
@@ -36,10 +34,29 @@ template Main() {
 
 	signal input sender_k;
 
+	signal input difference[64];
+	signal input difference_round;
+
 	signal input other_x;
 	signal input other_y;
 	signal input sender_x;
 	signal input sender_y;
+
+	signal input cipher_step1_L_in;
+	signal input cipher_step1_R_in;
+	signal input cipher_step2_L_in;
+	signal input cipher_step2_R_in;
+	signal input cipher_step3_L_in;
+	signal input cipher_step3_R_in;
+
+	signal input cipher_hash1_L_in;
+	signal input cipher_hash1_R_in;
+	signal input cipher_hash2_L_in;
+	signal input cipher_hash2_R_in;
+	signal input cipher_hash3_L_in;
+	signal input cipher_hash3_R_in;
+
+	signal input hash_state_in;
 
 	signal output other_x_out;
 	signal output other_y_out;
@@ -61,42 +78,6 @@ template Main() {
 	signal output cipher_hash3_R_in_out;
 
 	signal output hash_state_out;
-
-	signal input difference[64];
-	signal input difference_round;
-
-
-/*
-	component common = Util();
-
-	common.step1_L_in <== step1_L_in;
-	common.step2_L_in <== step2_L_in;
-	common.step3_L_in <== step3_L_in;
-	common.hash1_L_in <== step1_L_in;
-	common.hash2_L_in <== step2_L_in;
-	common.hash3_L_in <== step3_L_in;
-
-	common.step1_R_in <== step1_R_in;
-	common.step2_R_in <== step2_R_in;
-	common.step3_R_in <== step3_R_in;
-	common.hash1_R_in <== step1_R_in;
-	common.hash2_R_in <== step2_R_in;
-	common.hash3_R_in <== step3_R_in;
-
-	common.cipher_step1_L_in_out ==> cipher_step1_L_in_out;
-	common.cipher_step1_R_in_out ==> cipher_step1_R_in_out;
-	common.cipher_step2_L_in_out ==> cipher_step2_L_in_out;
-	common.cipher_step2_R_in_out ==> cipher_step2_R_in_out;
-	common.cipher_step3_L_in_out ==> cipher_step3_L_in_out;
-	common.cipher_step3_R_in_out ==> cipher_step3_R_in_out;
-
-	common.cipher_hash1_L_in_out ==> cipher_hash1_L_in_out;
-	common.cipher_hash1_R_in_out ==> cipher_hash1_R_in_out;
-	common.cipher_hash2_L_in_out ==> cipher_hash2_L_in_out;
-	common.cipher_hash2_R_in_out ==> cipher_hash2_R_in_out;
-	common.cipher_hash3_L_in_out ==> cipher_hash3_L_in_out;
-	common.cipher_hash3_R_in_out ==> cipher_hash3_R_in_out;
-*/
 
 	var i;
 
@@ -180,19 +161,39 @@ template Main() {
 	cipher_hash3_L_in_out <== encrypt_hash3.xL_out;
 	cipher_hash3_R_in_out <== encrypt_hash3.xR_out;
 
-	component hash_state = Poseidon(6);
+	component hash_state = Poseidon(7);
 	hash_state.inputs[0] <== step1_L_in;
 	hash_state.inputs[1] <== step2_L_in;
 	hash_state.inputs[2] <== step3_L_in;
 	hash_state.inputs[3] <== hash1_L_in;
 	hash_state.inputs[4] <== hash2_L_in;
 	hash_state.inputs[5] <== hash3_L_in;
+	hash_state.inputs[6] <== step1_R_in;
 
 	other_x_out <== other_x;
 	other_y_out <== other_y;
 	sender_x_out <== sender_x;
 	sender_y_out <== sender_y;
 	hash_state_out <== hash_state.out;
+
+	cipher_step1_L_in_out === cipher_step1_L_in;
+	cipher_step2_L_in_out === cipher_step2_L_in;
+	cipher_step3_L_in_out === cipher_step3_L_in;
+
+	cipher_hash1_L_in_out === cipher_hash1_L_in;
+	cipher_hash2_L_in_out === cipher_hash2_L_in;
+	cipher_hash3_L_in_out === cipher_hash3_L_in;
+
+	cipher_step1_R_in_out === cipher_step1_R_in;
+	cipher_step2_R_in_out === cipher_step2_R_in;
+	cipher_step3_R_in_out === cipher_step3_R_in;
+
+	cipher_hash1_R_in_out === cipher_hash1_R_in;
+	cipher_hash2_R_in_out === cipher_hash2_R_in;
+	cipher_hash3_R_in_out === cipher_hash3_R_in;
+
+	hash_state_in === hash_state_out;
+
 }
 
 component main = Main();
