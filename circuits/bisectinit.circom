@@ -58,11 +58,12 @@ template Main() {
 
 	signal input hash_state_in;
 
+/*
 	signal output other_x_out;
 	signal output other_y_out;
 	signal output sender_x_out;
 	signal output sender_y_out;
-/*
+
 	signal output cipher_step1_L_in_out;
 	signal output cipher_step1_R_in_out;
 	signal output cipher_step2_L_in_out;
@@ -81,7 +82,6 @@ template Main() {
 */
 	var i;
 
-	/*
 
 	// Initial step has to be zero, final has to be larger
 	component bits = Bits2Num(64);
@@ -91,6 +91,7 @@ template Main() {
     }
 
 	difference_round * (difference_round-1) === 0;
+	/*
 
 	step1_L_in === 0;
 	step2_L_in === step1_L_in + bits.out + 1;

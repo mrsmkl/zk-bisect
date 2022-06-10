@@ -3,6 +3,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import './bisectinit.sol';
 import './bisectchallenge.sol';
+import 'hardhat/console.sol';
 
 contract Bisect {
     Verifierbisectinit init;
@@ -42,13 +43,13 @@ contract Bisect {
         bytes memory proof
     ) public {
         require(challenges[id].state == 0, "state exists");
-        uint[] memory params = new uint[](4);
+        uint[] memory params = new uint[](17);
         // uint[] memory params = new uint[](17);
         params[0] = key1[0];
         params[1] = key1[1];
+        /*
         params[2] = key2[0];
         params[3] = key2[1];
-        /*
         params[4] = step1[0];
         params[5] = step1[1];
         params[6] = step2[0];
@@ -62,7 +63,11 @@ contract Bisect {
         params[14] = hash3[0];
         params[15] = hash3[1];
         params[16] = state;*/
-        require(init.verifyProof(proof, params), "cannot verify proof");
+        {
+            uint res = init.verifyProof(proof, params);
+            console.log(res);
+        }
+        require(init.verifyProof(proof, params) == 1, "cannot verify proof");
         challenges[id].key1 = key1;
         challenges[id].key2 = key2;
         challenges[id].state = state;

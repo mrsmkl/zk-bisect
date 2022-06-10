@@ -146,16 +146,21 @@ describe('Bisect', function () {
             (hash_state),
         ]
 
+        // for (let i = 0; i < )
+
         const proofSolidity = (await snarkjs.plonk.exportSolidityCallData(unstringifyBigInts(proof), signals))
         const proofData = proofSolidity.split(',')[0]
 
         console.log(proofData)
+        console.log(proofSolidity)
+
+        console.log([conv(senderPub[0]), conv(senderPub[1])])
 
         await bisect.connect(owner).initChallenge(
             "0x1232",
             other.address,
-            [conv(senderPub[0]), conv(senderPub[0])],
-            [conv(otherPub[0]), conv(otherPub[0])],
+            [conv(senderPub[0]), conv(senderPub[1])],
+            [conv(otherPub[0]), conv(otherPub[1])],
             [conv(cipher_step1.xL), conv(cipher_step1.xR)],
             [conv(cipher_hash1.xL), conv(cipher_hash1.xR)],
             [conv(cipher_step2.xL), conv(cipher_step2.xR)],

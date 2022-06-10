@@ -110,7 +110,7 @@ contract Verifierbisectinit {
     uint16 constant lastMem = 800;
 
 
-    function verifyProof(bytes memory proof, uint[] memory pubSignals) public view returns (bool) {
+    function verifyProof(bytes memory proof, uint[] memory pubSignals) public view returns (uint) {
         assembly {
             /////////
             // Computes the inverse using the extended euclidean algorithm
@@ -184,14 +184,14 @@ contract Verifierbisectinit {
             
             function checkField(v) {
                 if iszero(lt(v, q)) {
-                    mstore(0, 0)
+                    mstore(0, 123)
                     return(0,0x20)
                 }
             }
             
             function checkInput(pProof) {
                 if iszero(eq(mload(pProof), 800 )) {
-                    mstore(0, 0)
+                    mstore(0, 234)
                     return(0,0x20)
                 }
                 checkField(mload(add(pProof, pEval_a)))
@@ -572,7 +572,7 @@ contract Verifierbisectinit {
                 let success := staticcall(sub(gas(), 2000), 6, mIn, 128, pR, 64)
                 
                 if iszero(success) {
-                    mstore(0, 0)
+                    mstore(0, 333)
                     return(0,0x20)
                 }
             }
@@ -587,7 +587,7 @@ contract Verifierbisectinit {
                 success := staticcall(sub(gas(), 2000), 7, mIn, 96, mIn, 64)
                 
                 if iszero(success) {
-                    mstore(0, 0)
+                    mstore(0, 444)
                     return(0,0x20)
                 }
                 
@@ -597,7 +597,7 @@ contract Verifierbisectinit {
                 success := staticcall(sub(gas(), 2000), 6, mIn, 128, pR, 64)
                 
                 if iszero(success) {
-                    mstore(0, 0)
+                    mstore(0, 555)
                     return(0,0x20)
                 }
                 
@@ -613,7 +613,7 @@ contract Verifierbisectinit {
                 success := staticcall(sub(gas(), 2000), 7, mIn, 96, mIn, 64)
                 
                 if iszero(success) {
-                    mstore(0, 0)
+                    mstore(0, 666)
                     return(0,0x20)
                 }
                 
@@ -623,7 +623,7 @@ contract Verifierbisectinit {
                 success := staticcall(sub(gas(), 2000), 6, mIn, 128, pR, 64)
                 
                 if iszero(success) {
-                    mstore(0, 0)
+                    mstore(0, 777)
                     return(0,0x20)
                 }
             }
@@ -638,7 +638,7 @@ contract Verifierbisectinit {
                 success := staticcall(sub(gas(), 2000), 7, mIn, 96, pR, 64)
                 
                 if iszero(success) {
-                    mstore(0, 0)
+                    mstore(0, 888)
                     return(0,0x20)
                 }
             }
@@ -779,7 +779,8 @@ contract Verifierbisectinit {
             let isValid := checkPairing(pMem)
             
             mstore(0x40, sub(pMem, lastMem))
-            mstore(0, isValid)
+            // mstore(0, isValid)
+            mstore(0, 987)
             return(0,0x20)
         }
         
