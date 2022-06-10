@@ -54,10 +54,10 @@ template Main() {
 	signal input steps_equal;
 	signal input choose_bits[254];
 
-	signal input other_x;
-	signal input other_y;
 	signal input sender_x;
 	signal input sender_y;
+	signal input other_x;
+	signal input other_y;
 
 	signal input cipher_step1_L_in;
 	signal input cipher_step1_R_in;
@@ -79,10 +79,10 @@ template Main() {
 	signal input hash_state_in;
 	signal input prev_hash_state_in;
 
-	signal output other_x_out;
-	signal output other_y_out;
 	signal output sender_x_out;
 	signal output sender_y_out;
+	signal output other_x_out;
+	signal output other_y_out;
 
 	signal output cipher_step1_L_in_out;
 	signal output cipher_step1_R_in_out;
