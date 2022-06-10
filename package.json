@@ -2,10 +2,12 @@
     "name": "zk-bisect",
     "version": "0.0.1",
     "dependencies": {
+        "@nomiclabs/hardhat-ethers": "^2.0.6",
         "circomlib": "^2.0.3",
         "circomlibjs": "^0.1.1",
+        "ethers": "^5.6.8",
         "hardhat": "^2.9.9",
         "mocha": "^10.0.0",
-        "snarkjs": "^0.4.14"
+        "snarkjs": "0.4.14"
     }
 }

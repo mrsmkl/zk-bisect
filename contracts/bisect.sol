@@ -25,10 +25,10 @@ contract Bisect {
         uint[2] choose;
     }
 
-    mapping (bytes32 => Challenge) challenges;
+    mapping (uint => Challenge) challenges;
 
     function initChallenge(
-        bytes32 id,
+        uint id,
         address other,
         uint[2] memory key1,
         uint[2] memory key2,
@@ -42,25 +42,27 @@ contract Bisect {
         bytes memory proof
     ) public {
         require(challenges[id].state == 0, "state exists");
-        uint[] memory params = new uint[](17);
+        uint[] memory params = new uint[](4);
+        // uint[] memory params = new uint[](17);
         params[0] = key1[0];
         params[1] = key1[1];
         params[2] = key2[0];
         params[3] = key2[1];
+        /*
         params[4] = step1[0];
         params[5] = step1[1];
-        params[6] = hash1[0];
-        params[7] = hash1[1];
-        params[8] = step2[0];
-        params[9] = step2[1];
-        params[10] = hash2[0];
-        params[11] = hash2[1];
-        params[12] = step3[0];
-        params[13] = step3[1];
+        params[6] = step2[0];
+        params[7] = step2[1];
+        params[8] = step3[0];
+        params[9] = step3[1];
+        params[10] = hash1[0];
+        params[11] = hash1[1];
+        params[12] = hash2[0];
+        params[13] = hash2[1];
         params[14] = hash3[0];
         params[15] = hash3[1];
-        params[16] = state;
-        init.verifyProof(proof, params);
+        params[16] = state;*/
+        require(init.verifyProof(proof, params), "cannot verify proof");
         challenges[id].key1 = key1;
         challenges[id].key2 = key2;
         challenges[id].state = state;
@@ -69,7 +71,7 @@ contract Bisect {
     }
 
     function queryChallenge(
-        bytes32 id,
+        uint id,
         uint[2] memory choose
     ) public {
         require(challenges[id].other == msg.sender, "only other can query");
@@ -78,7 +80,7 @@ contract Bisect {
     }
 
     function replyChallenge(
-        bytes32 id,
+        uint id,
         uint[2] memory step1,
         uint[2] memory hash1,
         uint[2] memory step2,
@@ -98,21 +100,21 @@ contract Bisect {
         params[3] = c.key2[1];
         params[4] = step1[0];
         params[5] = step1[1];
-        params[6] = hash1[0];
-        params[7] = hash1[1];
-        params[8] = step2[0];
-        params[9] = step2[1];
-        params[10] = hash2[0];
-        params[11] = hash2[1];
-        params[12] = step3[0];
-        params[13] = step3[1];
+        params[6] = step2[0];
+        params[7] = step2[1];
+        params[8] = step3[0];
+        params[9] = step3[1];
+        params[10] = hash1[0];
+        params[11] = hash1[1];
+        params[12] = hash2[0];
+        params[13] = hash2[1];
         params[14] = hash3[0];
         params[15] = hash3[1];
         params[16] = c.choose[0];
         params[17] = c.choose[1];
         params[18] = state;
         params[19] = c.state;
-        chal.verifyProof(proof, params);
+        require(chal.verifyProof(proof, params), "cannot verify proof");
         c.choose[0] = 0;
         c.state = state;
         c.turn++;

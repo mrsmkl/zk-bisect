@@ -20,4 +20,4 @@ process() {
 }
 
 process bisectinit
-process bisectchallenge
+# process bisectchallenge
