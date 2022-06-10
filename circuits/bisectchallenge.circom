@@ -82,11 +82,11 @@ template Main() {
 	signal input difference_choose;
 	signal input difference_round;
 	signal input steps_equal;
+	signal input choose_bits[254];
 
 	var i;
 
 	////////////////////
-	difference_choose === choose_L_in;
 	difference_round * (difference_round-1) === 0;
 	steps_equal * (steps_equal-1) === 0;
 	difference_choose * (difference_choose-1) === 0;
@@ -100,6 +100,13 @@ template Main() {
 		difference_eq[i] * (difference_eq[i]-1) === 0;
 		bits_eq.in[i] <== difference_eq[i];
     }
+	component bits_choose = Bits2Num_strict();
+    for (i=0; i<254; i++) {
+		choose_bits[i] * (choose_bits[i]-1) === 0;
+		bits_choose.in[i] <== choose_bits[i];
+    }
+	difference_choose === choose_bits[0];
+	bits_choose.out === choose_L_in;
 
 	// step1 < step2 <= step3
 	signal step1_choose;
