@@ -16,8 +16,8 @@ process() {
     mv $1_js/$1.wasm circuits
     yarn run snarkjs plonk setup circuits/$1.r1cs powersOfTau28_hez_final_16.ptau circuits/$1.zkey
     yarn run snarkjs zkey export solidityverifier circuits/$1.zkey contracts/$1.sol
-    gsed -i "s/PlonkVerifier/Verifier${1}/g" contracts/$1.sol
+    gsed -i "s/PlonkVerifier/Verifier${1}/g" contracts/$1.sol || sed -i "s/PlonkVerifier/Verifier${1}/g" contracts/$1.sol
 }
 
-# process bisectinit
+process bisectinit
 process bisectchallenge
