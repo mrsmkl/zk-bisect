@@ -75,6 +75,17 @@ describe('Bisect', function () {
 
         let difference_round = 1
         let difference = num2bits(11)
+    
+        console.log('current hash', conv(hash_state),
+        [
+            step1,
+            step2,
+            step3,
+            hash1,
+            hash2,
+            hash3,
+            step1_salt,
+        ].map(conv))
 
         const snarkParams = {
             // private
@@ -204,7 +215,7 @@ describe('Bisect', function () {
             hash2 = hash3
         }
 
-        let step1_salt = F.e(220)
+        let step1_salt = F.e(2203)
         let step2_salt = F.e(2212)
         let step3_salt = F.e(2224)
 
@@ -212,7 +223,7 @@ describe('Bisect', function () {
         let hash2_salt = F.e(22444)
         let hash3_salt = F.e(22555)
 
-        let prev_step1_salt = F.e(2212)
+        let prev_step1_salt = F.e(220)
 
         let senderK = 123
         let otherK = 234
@@ -239,6 +250,17 @@ describe('Bisect', function () {
             prev_hash3,
             prev_step1_salt,
         ])
+
+        console.log('prev hash', conv(prev_hash_state),
+        [
+            prev_step1,
+            prev_step2,
+            prev_step3,
+            prev_hash1,
+            prev_hash2,
+            prev_hash3,
+            prev_step1_salt,
+        ].map(conv))
 
         const senderPub = babyJub.mulPointEscalar(babyJub.Base8, senderK)
         const otherPub = babyJub.mulPointEscalar(babyJub.Base8, otherK)
@@ -362,6 +384,7 @@ describe('Bisect', function () {
         const proofData = proofSolidity.split(',')[0]
 
         console.log(proofData)
+
         await bisect.connect(owner).replyChallenge(
             "0x1232",
             [conv(cipher_step1.xL), conv(cipher_step1.xR)],

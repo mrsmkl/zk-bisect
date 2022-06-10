@@ -262,6 +262,7 @@ template Main() {
 	other_y_out <== other_y;
 	sender_x_out <== sender_x;
 	sender_y_out <== sender_y;
+
 	hash_state_out <== hash_state.out;
 	prev_hash_state_out <== prev_hash_state.out;
 
@@ -286,7 +287,6 @@ template Main() {
 
 	hash_state_in === hash_state_out;
 	prev_hash_state_in === prev_hash_state_out;
-
 }
 
 component main = Main();
