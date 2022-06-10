@@ -2,7 +2,7 @@ const circomlib = require('circomlibjs')
 
 const snarkjs = require('snarkjs')
 // const { unstringifyBigInts } = require('ffjavascript').utils
-const { num2bits } = require('./util')
+const { num2bits, num2fullbits } = require('./util')
 
 function bisect(F, start, end) {
     let mid = start + Math.floor((end-start) / 2) + 1
@@ -155,6 +155,7 @@ describe('testing challenge', function () {
             difference_round: difference_round,
             difference_choose: conv(choose),
             steps_equal: steps_equal,
+            choose_bits: num2fullbits(BigInt(conv(choose))),
 
             // public
             sender_x: conv(senderPub[0]),

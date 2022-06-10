@@ -8,6 +8,16 @@ function num2bits(num) {
     return res
 }
 
+function num2fullbits(num) {
+    let res = []
+    for (let i = 0; i < 254; i++) {
+        res.push(num % 2n)
+        num = num / 2n
+    }
+    return res
+}
+
 module.exports = {
     num2bits,
+    num2fullbits,
 }
