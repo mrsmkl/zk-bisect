@@ -17,6 +17,29 @@ function num2fullbits(num) {
     return res
 }
 
+function bisectRange(start, end) {
+    let mid = start + Math.floor((end-start) / 2) + 1
+    let difference = mid - start - 1
+    let difference_eq = end - mid - 1
+    let steps_equal = 0
+    let difference_round = (start + 1 + 2*difference) - end
+    if (difference_eq < 0) {
+        difference_eq = 0
+        steps_equal = 1
+        mid = start+1
+        end = mid
+        difference = 0
+        difference_round = 0
+    }
+    return {
+        prev_step1: start,
+        prev_step2: end,
+        step1: start,
+        step2: mid,
+        step3: end,
+    }
+}
+
 function bisectRange(F, start, end) {
     let mid = start + Math.floor((end-start) / 2) + 1
     let difference = mid - start - 1

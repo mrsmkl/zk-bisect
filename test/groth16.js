@@ -1,9 +1,4 @@
 const { ethers } = require("hardhat");
-const circomlib = require('circomlibjs')
-const snarkjs = require('snarkjs')
-const { unstringifyBigInts } = require('ffjavascript').utils
-
-const { num2bits, num2fullbits, bisectRange } = require('./util')
 
 describe('Groth16 test', function () {
     this.timeout(100000)

@@ -19,5 +19,6 @@ process() {
     gsed -i "s/PlonkVerifier/Verifier${1}/g" contracts/$1.sol || sed -i "s/PlonkVerifier/Verifier${1}/g" contracts/$1.sol
 }
 
+process bisectfinal
 process bisectinit
 process bisectchallenge
