@@ -11,13 +11,19 @@ describe('Bisect', function () {
     let owner, other
     before(async () => {
         let Init = await ethers.getContractFactory('Verifierbisectinit')
-        let Challenge = await ethers.getContractFactory('Verifierbisectchallenge')
         let init = await Init.deploy()
-        let challenge = await Challenge.deploy()
         await init.deployed()
+        let Challenge = await ethers.getContractFactory('Verifierbisectchallenge')
+        let challenge = await Challenge.deploy()
         await challenge.deployed()
+        let Final = await ethers.getContractFactory('Verifierbisectfinal')
+        let final = await Final.deploy()
+        await final.deployed()
+        let Osp = await ethers.getContractFactory('Verifier')
+        let osp = await Osp.deploy()
+        await osp.deployed()
         let Bisect = await ethers.getContractFactory('Bisect')
-        bisect = await Bisect.deploy(init.address, challenge.address)
+        bisect = await Bisect.deploy(init.address, challenge.address, final.address, osp.address)
         await bisect.deployed();
         [owner, other] = await ethers.getSigners()
     })
