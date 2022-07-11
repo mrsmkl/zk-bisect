@@ -3,44 +3,32 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract Accumulator {
 
-    bytes32[][] public levels;
+    mapping (uint => mapping (uint => bytes32)) public levels;
+    uint public num;
 
-    function left(bytes32[] storage arr, uint idx) internal view returns (bytes32) {
-        uint i = idx % 2 == 0 ? idx : idx-1;
-        if (arr.length <= i) {
-            return 0;
-        } else {
-            return arr[i];
-        }
+    function left(uint idx) internal pure returns (uint) {
+        return idx % 2 == 0 ? idx : idx-1;
     } 
 
-    function right(bytes32[] storage arr, uint idx) internal view returns (bytes32) {
-        uint i = idx % 2 == 0 ? idx+1 : idx;
-        if (arr.length <= i) {
-            return 0;
-        } else {
-            return arr[i];
-        }
+    function right(uint idx) internal pure returns (uint) {
+        return idx % 2 == 0 ? idx+1 : idx;
     } 
 
     // Returns the root of the tree
     // Will make a lot of storage modifications...
     function accumulate(bytes32 elem) public returns (bytes32) {
-        uint idx = levels[0].length;
-        levels[0].push(elem);
-        for (uint level = 0; level < levels.length-1; level++) {
-            bytes32 h = keccak256(abi.encodePacked(left(levels[level], idx), right(levels[level], idx)));
+        uint idx = num;
+        levels[0][num] = elem;
+        num++;
+        for (uint level = 0; level < 31; level++) {
+            bytes32 h = keccak256(abi.encodePacked(levels[level][left(idx)], levels[level][right(idx)]));
             idx = idx / 2;
             levels[level+1][idx] = h;
         }
-        return levels[levels.length-1][0];
+        return levels[31][0];
     }
 
     function init() public {
-        for (uint i = 0; i < 32; i++) {
-            levels.push({});
-        }
-        // levels.length = 32;
     }
 
     // Construct full trees
