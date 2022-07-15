@@ -41,8 +41,15 @@ template Main() {
     signal input prev_after_inbox;
     signal input prev_after_position;
 
-    signal input non_zero;
-    signal input non_zero_inv;
+    signal input position_diff[200];
+    signal input extra_inbox[64];
+
+    signal input current_inbox_size;
+
+    signal input before_inbox_small[64];
+    signal input before_position_small[64];
+    signal input after_inbox_small[64];
+    signal input after_position_small[64];
 
     // Need to know that correct secret is used
     signal output secret_hash;
@@ -65,9 +72,83 @@ template Main() {
     signal output assertion_hash;
     signal output prev_assertion_hash;
 
-    // Machine status cannot be error
-    (after_status - 1)*(after_status - 2) === non_zero;
-    non_zero * non_zero_inv === 1;
+    signal output current_inbox_size_out;
+
+    var i;
+
+    // Machine status must be finished or error
+    (after_status - 1)*(after_status - 2) === 0;
+
+    // previous state matches
+    before_status === prev_after_status;
+    before_block === prev_after_block;
+    before_send === prev_after_send;
+    before_inbox === prev_after_inbox;
+    before_position === prev_after_position;
+
+    // compare before and after for inbox
+    component position_diff_num = Bits2Num(200);
+    for (i=0; i<200; i++) {
+		position_diff[i] * (position_diff[i]-1) === 0;
+		position_diff_num.in[i] <== position_diff[i];
+    }
+
+    component extra_inbox_num = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		extra_inbox[i] * (extra_inbox[i]-1) === 0;
+		extra_inbox_num.in[i] <== extra_inbox[i];
+    }
+
+    signal pos_before;
+    signal pos_after;
+
+    pos_before <== before_inbox * (2**100) + before_position;
+    pos_after <== after_inbox * (2**100) + after_position;
+
+    pos_before + position_diff_num.out === pos_after;
+
+    // will be one if the status was error, zero if was finished
+    signal one_if_error;
+    one_if_error <== after_status - 1;
+
+    // will be one if position is zero, zero otherwise
+    /*
+    signal one_if_position;
+    signal tmp;
+    tmp <== ;
+    one_if_position <== ;
+    */
+
+    current_inbox_size === after_inbox + extra_inbox_num.out + one_if_error;
+
+    // Checks that all positions are small
+    component before_inbox_num = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		before_inbox_small[i] * (before_inbox_small[i]-1) === 0;
+		before_inbox_num.in[i] <== before_inbox_small[i];
+    }
+    before_inbox_num.out === before_inbox;
+
+    component before_position_num = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		before_position_small[i] * (before_position_small[i]-1) === 0;
+		before_position_num.in[i] <== before_position_small[i];
+    }
+    before_position_num.out === before_position;
+
+    component after_inbox_num = Bits2Num(64);
+    for (i=0; i<64; i++) {
+	    after_inbox_small[i] * (after_inbox_small[i]-1) === 0;
+		after_inbox_num.in[i] <== after_inbox_small[i];
+    }
+    after_inbox_num.out === after_inbox;
+
+    component after_position_num = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		after_position_small[i] * (after_position_small[i]-1) === 0;
+		after_position_num.in[i] <== after_position_small[i];
+    }
+    after_position_num.out === after_position;
 
     // encrypt the assertion, where to put salt
     component encrypt_num_blocks = MiMCFeistel(220);
@@ -177,6 +258,8 @@ template Main() {
     prev_hash_assertion.inputs[10] <== prev_after_inbox;
     prev_hash_assertion.inputs[11] <== prev_after_position;
     prev_assertion_hash <== prev_hash_assertion.out;
+
+    current_inbox_size_out <== current_inbox_size;
 
 }
 
