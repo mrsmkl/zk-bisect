@@ -112,12 +112,14 @@ template Main() {
     one_if_error <== after_status - 1;
 
     // will be one if position is zero, zero otherwise
-    signal one_if_position;
-    signal tmp;
-    one_if_position <== before_position + 1;
-    one_if_position * (one_if_position-1) === 0;
+    component one_if_position = IsZero();
+    one_if_position.in <== before_position;
 
-    current_inbox_size === after_inbox + extra_inbox_num.out + one_if_error;
+    component extra_increment = OR();
+    extra_increment.a <== one_if_error;
+    extra_increment.b <== one_if_position.out;
+
+    current_inbox_size === after_inbox + extra_inbox_num.out + extra_increment.out;
 
     // Checks that all positions are small
     component before_inbox_num = Bits2Num(64);
