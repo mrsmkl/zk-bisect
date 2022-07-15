@@ -112,12 +112,10 @@ template Main() {
     one_if_error <== after_status - 1;
 
     // will be one if position is zero, zero otherwise
-    /*
     signal one_if_position;
     signal tmp;
-    tmp <== ;
-    one_if_position <== ;
-    */
+    one_if_position <== before_position + 1;
+    one_if_position * (one_if_position-1) === 0;
 
     current_inbox_size === after_inbox + extra_inbox_num.out + one_if_error;
 
