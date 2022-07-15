@@ -3,9 +3,22 @@
  */
 
 require('@nomiclabs/hardhat-ethers')
+require('hardhat-gas-reporter')
 
 module.exports = {
-  solidity: "0.7.3",
+  solidity: {
+    compilers: [
+        {
+            version: '0.8.9',
+            settings: {
+                optimizer: {
+                    enabled: true,
+                    runs: 10
+                }
+            }
+        }
+    ]
+  },
   networks: {
     hardhat: {
         allowUnlimitedContractSize: true,

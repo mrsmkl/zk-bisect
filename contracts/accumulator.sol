@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity >=0.8.0 <0.9.0;
+
+import 'hardhat/console.sol';
 
 contract Accumulator {
 
@@ -38,12 +40,27 @@ contract Accumulator {
         bytes32 root;
     }
 
-    Node[32] public nodes;
+    mapping (uint => Node) public nodes;
     uint public pointer;
 
-    function add(bytes32 elem) internal {
-        nodes[pointer] = Node(1, elem);
-        pointer++;
+    function add(bytes32 elem) public returns (bytes32) {
+        if (pointer > 0 && nodes[pointer-1].depth == 1) {
+            Node storage leftN = nodes[pointer - 1];
+            leftN.depth++;
+            leftN.root = keccak256(abi.encodePacked(leftN.root, elem));
+        } else {
+            nodes[pointer] = Node(1, elem);
+            pointer++;
+        }
+        while (pointer > 1) {
+            Node storage leftN = nodes[pointer - 2];
+            Node storage rightN = nodes[pointer - 1];
+            if (leftN.depth != rightN.depth) break;
+            leftN.depth++;
+            leftN.root = keccak256(abi.encodePacked(leftN.root, rightN.root));
+            pointer--;
+        }
+        return getRoot(0, 32);
     }
 
     function merge() internal {
@@ -58,9 +75,37 @@ contract Accumulator {
     // len has to be power of two
     function getRoot(uint start, uint len) internal returns (bytes32) {
         if (len == 1) {
+            console.log(start);
             return nodes[start].root;
         }
         return keccak256(abi.encodePacked(getRoot(start, len/2), getRoot(start+len/2, len/2)));
+    }
+
+/*
+    function getRoot(uint start, uint len) internal returns (bytes32) {
+        unchecked {
+            bytes32 acc = nodes[start].root;
+            for (uint i = 0; i < len; i++) {
+                acc = keccak256(abi.encodePacked(nodes[start+i].root, acc));
+            }
+        return acc;
+        }
+    }
+*/
+
+    uint buflen;
+    bytes32 buffer;
+    bytes32 root;
+
+    function addBuffer(bytes32 elem) public returns (bytes32) {
+        buffer = keccak256(abi.encodePacked(buffer, elem));
+        buflen++;
+        if (buflen == 10) {
+            root = add(buffer);
+            buffer = 0;
+            buflen = 0;
+        }
+        return keccak256(abi.encodePacked(buffer, root));
     }
 
 }
