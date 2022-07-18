@@ -45,6 +45,10 @@ template Main() {
 
     signal output assertion_hash;
     signal output prev_assertion_hash;
+    signal output init_hash;
+    signal output prev_propose_time_out;
+
+    prev_propose_time_out <== prev_propose_time;
 
     component hash_assertion = Poseidon(14);
     hash_assertion.inputs[0] <== num_blocks;
@@ -79,6 +83,25 @@ template Main() {
     prev_hash_assertion.inputs[12] <== prev_wasm_root;
     prev_hash_assertion.inputs[13] <== prev_propose_time;
     prev_assertion_hash <== prev_hash_assertion.out;
+
+    signal other_init_hash;
+
+    component hash_init = Poseidon(5);
+    hash_init.inputs[0] <== after_status;
+    hash_init.inputs[1] <== after_block;
+    hash_init.inputs[2] <== after_send;
+    hash_init.inputs[3] <== after_inbox;
+    hash_init.inputs[4] <== after_position;
+
+    init_hash <== hash_init.out;
+    
+    component prev_hash_init = Poseidon(5);
+    prev_hash_init.inputs[0] <== prev_after_status;
+    prev_hash_init.inputs[1] <== prev_after_block;
+    prev_hash_init.inputs[2] <== prev_after_send;
+    prev_hash_init.inputs[3] <== prev_after_inbox;
+    prev_hash_init.inputs[4] <== prev_after_position;
+    
 
 }
 
