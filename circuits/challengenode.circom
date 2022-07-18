@@ -10,6 +10,7 @@ include "../node_modules/circomlib/circuits/gates.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
 
 template Main() {
+    signal input secret; // Shared secret
     // Assertion data
     signal input num_blocks;
     signal input inbox_max;
@@ -26,8 +27,24 @@ template Main() {
     signal input propose_time; // cannot be secret
     signal input wasm_root;
 
+    // Other Assertion data
+    signal input prev_num_blocks;
+    signal input prev_inbox_max;
+    signal input prev_before_status;
+    signal input prev_before_block;
+    signal input prev_before_send;
+    signal input prev_before_inbox;
+    signal input prev_before_position;
+    signal input prev_after_status;
+    signal input prev_after_block;
+    signal input prev_after_send;
+    signal input prev_after_inbox;
+    signal input prev_after_position;
+    signal input prev_propose_time; // cannot be secret
+    signal input prev_wasm_root;
+
     signal output assertion_hash;
-    signal output send_root_out;
+    signal output prev_assertion_hash;
 
     component hash_assertion = Poseidon(14);
     hash_assertion.inputs[0] <== num_blocks;
@@ -46,7 +63,23 @@ template Main() {
     hash_assertion.inputs[13] <== propose_time;
     assertion_hash <== hash_assertion.out;
 
-    send_root_out <== after_send;
+    component prev_hash_assertion = Poseidon(14);
+    prev_hash_assertion.inputs[0] <== prev_num_blocks;
+    prev_hash_assertion.inputs[1] <== prev_inbox_max;
+    prev_hash_assertion.inputs[2] <== prev_before_status;
+    prev_hash_assertion.inputs[3] <== prev_before_block;
+    prev_hash_assertion.inputs[4] <== prev_before_send;
+    prev_hash_assertion.inputs[5] <== prev_before_inbox;
+    prev_hash_assertion.inputs[6] <== prev_before_position;
+    prev_hash_assertion.inputs[7] <== prev_after_status;
+    prev_hash_assertion.inputs[8] <== prev_after_block;
+    prev_hash_assertion.inputs[9] <== prev_after_send;
+    prev_hash_assertion.inputs[10] <== prev_after_inbox;
+    prev_hash_assertion.inputs[11] <== prev_after_position;
+    prev_hash_assertion.inputs[12] <== prev_wasm_root;
+    prev_hash_assertion.inputs[13] <== prev_propose_time;
+    prev_assertion_hash <== prev_hash_assertion.out;
+
 }
 
 component main = Main();
