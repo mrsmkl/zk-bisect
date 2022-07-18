@@ -84,8 +84,6 @@ template Main() {
     prev_hash_assertion.inputs[13] <== prev_propose_time;
     prev_assertion_hash <== prev_hash_assertion.out;
 
-    signal other_init_hash;
-
     component hash_init = Poseidon(5);
     hash_init.inputs[0] <== after_status;
     hash_init.inputs[1] <== after_block;
@@ -101,8 +99,14 @@ template Main() {
     prev_hash_init.inputs[2] <== prev_after_send;
     prev_hash_init.inputs[3] <== prev_after_inbox;
     prev_hash_init.inputs[4] <== prev_after_position;
-    
 
+    signal exec_hash_cmp;
+    exec_hash_cmp <== init_hash - prev_hash_init.out;
+    component exec_hash_same = IsZero();
+    exec_hash_same.in <== exec_hash_cmp;
+
+    exec_hash_same.out === 0;
+    // maybe should construct better initial state here
 }
 
 component main = Main();
