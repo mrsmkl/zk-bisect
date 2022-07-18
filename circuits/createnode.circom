@@ -43,6 +43,7 @@ template Main() {
 
     signal input position_diff[200];
     signal input extra_inbox[64];
+    signal input inbox_max_diff[64];
 
     signal input current_inbox_size;
 
@@ -79,12 +80,25 @@ template Main() {
     // Machine status must be finished or error
     (after_status - 1)*(after_status - 2) === 0;
 
+    // previous state cannot be error
+    before_status === 1;
+
     // previous state matches
     before_status === prev_after_status;
     before_block === prev_after_block;
     before_send === prev_after_send;
     before_inbox === prev_after_inbox;
     before_position === prev_after_position;
+
+    // check that all required messages have been consumed
+    signal cmp_inbox_max;
+    component inbox_diff_num = Bits2Num(64);
+    for (i=0; i<64; i++) {
+		inbox_max_diff[i] * (inbox_max_diff[i]-1) === 0;
+		inbox_diff_num.in[i] <== inbox_max_diff[i];
+    }
+    cmp_inbox_max <== prev_inbox_max + inbox_diff_num.out - inbox_max;
+    cmp_inbox_max * (after_status - 2) === 0;
 
     // compare before and after for inbox
     component position_diff_num = Bits2Num(200);
@@ -107,6 +121,8 @@ template Main() {
 
     pos_before + position_diff_num.out === pos_after;
 
+    // check that hasn't consumed too many messages
+
     // will be one if the status was error, zero if was finished
     signal one_if_error;
     one_if_error <== after_status - 1;
@@ -119,7 +135,7 @@ template Main() {
     extra_increment.a <== one_if_error;
     extra_increment.b <== one_if_position.out;
 
-    current_inbox_size === after_inbox + extra_inbox_num.out + extra_increment.out;
+    current_inbox_size === after_inbox + extra_increment.out + extra_inbox_num.out;
 
     // Checks that all positions are small
     component before_inbox_num = Bits2Num(64);
@@ -149,6 +165,11 @@ template Main() {
 		after_position_num.in[i] <== after_position_small[i];
     }
     after_position_num.out === after_position;
+
+    // num blocks must be larger than zero
+    component num_blocks_zero = IsZero();
+    num_blocks_zero.in <== num_blocks;
+    num_blocks_zero.out === 0;
 
     // encrypt the assertion, where to put salt
     component encrypt_num_blocks = MiMCFeistel(220);

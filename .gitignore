@@ -8,5 +8,6 @@ bisect_js
 bisectinit_js
 bisectfinal_js
 bisectchallenge_js
+createnode_js
 artifacts
 cache
