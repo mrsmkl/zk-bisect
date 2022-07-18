@@ -24,6 +24,8 @@ template Main() {
     signal input after_send;
     signal input after_inbox;
     signal input after_position;
+    signal input propose_time; // cannot be secret
+    signal input wasm_root;
 
     signal input salt;
 
@@ -40,6 +42,8 @@ template Main() {
     signal input prev_after_send;
     signal input prev_after_inbox;
     signal input prev_after_position;
+    signal input prev_propose_time; // cannot be secret
+    signal input prev_wasm_root;
 
     signal input position_diff[200];
     signal input extra_inbox[64];
@@ -55,6 +59,8 @@ template Main() {
     // Need to know that correct secret is used
     signal output secret_hash;
     signal output salt_out;
+    signal output wasm_hash;
+    signal output propose_time_out;
 
     // Assertion data (encrypted)
     signal output num_blocks_out;
@@ -89,6 +95,7 @@ template Main() {
     before_send === prev_after_send;
     before_inbox === prev_after_inbox;
     before_position === prev_after_position;
+    wasm_root === prev_wasm_root;
 
     // check that all required messages have been consumed
     signal cmp_inbox_max;
@@ -250,7 +257,11 @@ template Main() {
     hash_secret.inputs[0] <== secret;
     secret_hash <== hash_secret.out;
 
-    component hash_assertion = Poseidon(12);
+    component hash_wasm = Poseidon(1);
+    hash_wasm.inputs[0] <== wasm_root;
+    wasm_hash <== hash_wasm.out;
+
+    component hash_assertion = Poseidon(14);
     hash_assertion.inputs[0] <== num_blocks;
     hash_assertion.inputs[1] <== inbox_max;
     hash_assertion.inputs[2] <== before_status;
@@ -263,9 +274,11 @@ template Main() {
     hash_assertion.inputs[9] <== after_send;
     hash_assertion.inputs[10] <== after_inbox;
     hash_assertion.inputs[11] <== after_position;
+    hash_assertion.inputs[12] <== wasm_root;
+    hash_assertion.inputs[13] <== propose_time;
     assertion_hash <== hash_assertion.out;
 
-    component prev_hash_assertion = Poseidon(12);
+    component prev_hash_assertion = Poseidon(14);
     prev_hash_assertion.inputs[0] <== prev_num_blocks;
     prev_hash_assertion.inputs[1] <== prev_inbox_max;
     prev_hash_assertion.inputs[2] <== prev_before_status;
@@ -278,9 +291,12 @@ template Main() {
     prev_hash_assertion.inputs[9] <== prev_after_send;
     prev_hash_assertion.inputs[10] <== prev_after_inbox;
     prev_hash_assertion.inputs[11] <== prev_after_position;
+    prev_hash_assertion.inputs[12] <== prev_wasm_root;
+    prev_hash_assertion.inputs[13] <== prev_propose_time;
     prev_assertion_hash <== prev_hash_assertion.out;
 
     current_inbox_size_out <== current_inbox_size;
+    propose_time_out <== propose_time;
 
 }
 
