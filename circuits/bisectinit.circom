@@ -81,6 +81,7 @@ template Main() {
 	signal output cipher_hash3_R_in_out;
 
 	signal output hash_state_out;
+	signal output assertion_hash;
 
 /*
 	sender_x_out <== 8911751603281566160452710943246074761822317551823405301307348714667359009192;
