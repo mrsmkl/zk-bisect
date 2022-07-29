@@ -17,6 +17,9 @@ include "../node_modules/circomlib/circuits/comparators.circom";
 // There should be some kind of salt to hide the encrypted stuff ...
 // Round number should be known anyway
 
+// Constructing state from the node data?
+// figure out what is empty stack hash: 0
+
 template Main() {
 	signal input step1_L_in;
 	signal input step1_R_in;
