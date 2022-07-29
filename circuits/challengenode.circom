@@ -43,10 +43,26 @@ template Main() {
     signal input prev_propose_time; // cannot be secret
     signal input prev_wasm_root;
 
+    signal input salt;
+    signal input salt_final;
+
+    // input for final state
+    signal input value_stack;
+    signal input internal_stack;
+    signal input block_stack;
+    signal input frame_stack;
+    signal input module_idx;
+    signal input function_idx;
+    signal input function_pc;
+
     signal output assertion_hash;
     signal output prev_assertion_hash;
-    signal output init_hash;
     signal output prev_propose_time_out;
+
+    signal output machine_hash_l;
+    signal output machine_hash_r;
+    signal output final_hash_l;
+    signal output final_hash_r;
 
     prev_propose_time_out <== prev_propose_time;
 
@@ -90,8 +106,6 @@ template Main() {
     hash_init.inputs[2] <== after_send;
     hash_init.inputs[3] <== after_inbox;
     hash_init.inputs[4] <== after_position;
-
-    init_hash <== hash_init.out;
     
     component prev_hash_init = Poseidon(5);
     prev_hash_init.inputs[0] <== prev_after_status;
@@ -101,12 +115,64 @@ template Main() {
     prev_hash_init.inputs[4] <== prev_after_position;
 
     signal exec_hash_cmp;
-    exec_hash_cmp <== init_hash - prev_hash_init.out;
+    exec_hash_cmp <== hash_init.out - prev_hash_init.out;
     component exec_hash_same = IsZero();
     exec_hash_same.in <== exec_hash_cmp;
 
     exec_hash_same.out === 0;
-    // maybe should construct better initial state here
+
+    // Construct initial states
+    component hash_state = Poseidon(4);
+    hash_state.inputs[0] <== before_block;
+    hash_state.inputs[1] <== before_send;
+    hash_state.inputs[2] <== before_inbox;
+    hash_state.inputs[3] <== before_position;
+
+    component hash_final_state = Poseidon(4);
+    hash_final_state.inputs[0] <== after_block;
+    hash_final_state.inputs[1] <== after_send;
+    hash_final_state.inputs[2] <== after_inbox;
+    hash_final_state.inputs[3] <== after_position;
+
+    component hash_machine = Poseidon(9);
+    // stacks
+    hash_machine.inputs[0] <== 0;
+    hash_machine.inputs[1] <== 0;
+    hash_machine.inputs[2] <== 0;
+    hash_machine.inputs[3] <== 0;
+    hash_machine.inputs[4] <== hash_state.out;
+    // PC
+    hash_machine.inputs[5] <== 0;
+    hash_machine.inputs[6] <== 0;
+    hash_machine.inputs[7] <== 0;
+    hash_machine.inputs[8] <== wasm_root;
+
+    component encrypt_hash = MiMCFeistel(220);
+	encrypt_hash.xL_in <== hash_machine.out;
+	encrypt_hash.xR_in <== salt;
+	encrypt_hash.k <== secret;
+	machine_hash_l <== encrypt_hash.xL_out;
+	machine_hash_r <== encrypt_hash.xR_out;
+
+    component hash_final = Poseidon(9);
+    // stacks
+    hash_final.inputs[0] <== value_stack;
+    hash_final.inputs[1] <== internal_stack;
+    hash_final.inputs[2] <== block_stack;
+    hash_final.inputs[3] <== frame_stack;
+    hash_final.inputs[4] <== hash_state.out;
+    // PC
+    hash_final.inputs[5] <== module_idx;
+    hash_final.inputs[6] <== function_idx;
+    hash_final.inputs[7] <== function_pc;
+    hash_final.inputs[8] <== wasm_root;
+
+    component encrypt_final = MiMCFeistel(220);
+	encrypt_final.xL_in <== hash_final.out;
+	encrypt_final.xR_in <== salt_final;
+	encrypt_final.k <== secret;
+	final_hash_l <== encrypt_final.xL_out;
+	final_hash_r <== encrypt_final.xR_out;
 }
 
 component main = Main();
