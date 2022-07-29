@@ -10,6 +10,7 @@ include "../node_modules/circomlib/circuits/gates.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
 
 template Main() {
+    signal input secret; // Shared secret
     // Assertion data
     signal input num_blocks;
     signal input inbox_max;
@@ -26,8 +27,22 @@ template Main() {
     signal input propose_time; // cannot be secret
     signal input wasm_root;
 
+    signal input salt;
+    signal input salt_final;
+    // input for final state
+    signal input value_stack;
+    signal input internal_stack;
+    signal input block_stack;
+    signal input frame_stack;
+    signal input module_idx;
+    signal input function_idx;
+    signal input function_pc;
+
     signal output assertion_hash;
-    signal output machine_hash;
+    signal output machine_hash_l;
+    signal output machine_hash_r;
+    signal output final_hash_l;
+    signal output final_hash_r;
 
     component hash_assertion = Poseidon(14);
     hash_assertion.inputs[0] <== num_blocks;
@@ -52,6 +67,12 @@ template Main() {
     hash_state.inputs[2] <== before_inbox;
     hash_state.inputs[3] <== before_position;
 
+    component hash_final_state = Poseidon(4);
+    hash_final_state.inputs[0] <== after_block;
+    hash_final_state.inputs[1] <== after_send;
+    hash_final_state.inputs[2] <== after_inbox;
+    hash_final_state.inputs[3] <== after_position;
+
     component hash_machine = Poseidon(9);
     // stacks
     hash_machine.inputs[0] <== 0;
@@ -64,7 +85,33 @@ template Main() {
     hash_machine.inputs[6] <== 0;
     hash_machine.inputs[7] <== 0;
     hash_machine.inputs[8] <== wasm_root;
-    machine_hash <== hash_machine.out;
+
+    component encrypt_hash = MiMCFeistel(220);
+	encrypt_hash.xL_in <== hash_machine.out;
+	encrypt_hash.xR_in <== salt;
+	encrypt_hash.k <== secret;
+	machine_hash_l <== encrypt_hash.xL_out;
+	machine_hash_r <== encrypt_hash.xR_out;
+
+    component hash_final = Poseidon(9);
+    // stacks
+    hash_final.inputs[0] <== value_stack;
+    hash_final.inputs[1] <== internal_stack;
+    hash_final.inputs[2] <== block_stack;
+    hash_final.inputs[3] <== frame_stack;
+    hash_final.inputs[4] <== hash_state.out;
+    // PC
+    hash_final.inputs[5] <== module_idx;
+    hash_final.inputs[6] <== function_idx;
+    hash_final.inputs[7] <== function_pc;
+    hash_final.inputs[8] <== wasm_root;
+
+    component encrypt_final = MiMCFeistel(220);
+	encrypt_final.xL_in <== hash_final.out;
+	encrypt_final.xR_in <== salt_final;
+	encrypt_final.k <== secret;
+	final_hash_l <== encrypt_final.xL_out;
+	final_hash_r <== encrypt_final.xR_out;
 
 }
 
