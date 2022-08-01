@@ -25,11 +25,12 @@ template Main() {
     signal input after_position;
     signal input propose_time; // cannot be secret
     signal input wasm_root;
+    signal input inbox_hash;
 
     signal output assertion_hash;
     signal output send_root_out;
 
-    component hash_assertion = Poseidon(14);
+    component hash_assertion = Poseidon(15);
     hash_assertion.inputs[0] <== num_blocks;
     hash_assertion.inputs[1] <== inbox_max;
     hash_assertion.inputs[2] <== before_status;
@@ -44,6 +45,7 @@ template Main() {
     hash_assertion.inputs[11] <== after_position;
     hash_assertion.inputs[12] <== wasm_root;
     hash_assertion.inputs[13] <== propose_time;
+    hash_assertion.inputs[14] <== inbox_hash;
     assertion_hash <== hash_assertion.out;
 
     send_root_out <== after_send;
