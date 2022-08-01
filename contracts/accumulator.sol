@@ -81,18 +81,6 @@ contract Accumulator {
         return keccak256(abi.encodePacked(getRoot(start, len/2), getRoot(start+len/2, len/2)));
     }
 
-/*
-    function getRoot(uint start, uint len) internal returns (bytes32) {
-        unchecked {
-            bytes32 acc = nodes[start].root;
-            for (uint i = 0; i < len; i++) {
-                acc = keccak256(abi.encodePacked(nodes[start+i].root, acc));
-            }
-        return acc;
-        }
-    }
-*/
-
     uint buflen;
     bytes32 buffer;
     bytes32 root;
